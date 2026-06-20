@@ -9,6 +9,10 @@ dist/
 build/
 *.log
 
+# Runtime artifacts
+*.db
+agent_memory.db
+
 # IDE / OS
 .vscode/
 .idea/

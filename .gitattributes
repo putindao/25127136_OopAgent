@@ -1,0 +1,8 @@
+# Normalize line endings: store LF in the repo, check out LF everywhere.
+# Keeps a cross-platform C++ project consistent and silences CRLF warnings.
+* text=auto eol=lf
+
+# Treat these as binary (never convert).
+*.png binary
+*.jpg binary
+*.db  binary
