@@ -4,10 +4,12 @@
 //  them, run each once, and demonstrate the allow/deny policy. Later phases
 //  replace this with the real ReAct agent CLI.
 // =============================================================================
+#include <filesystem>
 #include <memory>
 #include <print>   // C++23
 #include <string>
 
+#include "agent/skill_loader.h"
 #include "tools/tool_registry.h"
 #include "tools/calculator_tool.h"
 #include "tools/file_tool.h"
@@ -16,6 +18,7 @@
 #include "tools/memory_tool.h"
 
 using namespace agent;
+namespace fs = std::filesystem;
 
 // Call one tool by name and pretty-print its ToolResult. Construction of a
 // factory-built tool may throw (e.g. MemoryTool on a SQLite error), so guard it.
@@ -70,6 +73,29 @@ int main() {
     std::println("\n=== Policy demo: deny 'exec' ===");
     registry.deny("exec");
     run(registry, "exec", "echo should-not-run");
+
+    // ---- Skill system (Phase 3) --------------------------------------------
+    std::println("\n=== Skill system ===");
+    SkillLoader skills;
+    fs::path skills_dir;
+    for (const char* candidate : {"skills", "../skills", "../../skills"}) {
+        if (fs::is_directory(candidate)) { skills_dir = candidate; break; }
+    }
+    if (const auto loaded = skills.load_directory(skills_dir); loaded.has_value()) {
+        std::println("Loaded {} skills from '{}':", *loaded, skills_dir.string());
+        for (const Skill& s : skills.skills()) {
+            std::println("  - {:<14}: {}", s.name, s.description);
+        }
+        std::println("Skill selection by keyword:");
+        for (const char* task : {"please plan the steps to refactor this module",
+                                 "the build failed with an error, fix it",
+                                 "find out who Alan Turing was"}) {
+            const Skill* picked = skills.select(task);
+            std::println("  task=\"{}\"\n      -> {}", task, picked ? picked->name : "(no match)");
+        }
+    } else {
+        std::println("Skill load error: {}", loaded.error());
+    }
 
     return 0;
 }
