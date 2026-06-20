@@ -35,4 +35,5 @@ target_link_libraries(agent PRIVATE
   CURL::libcurl
   nlohmann_json::nlohmann_json
   SQLite3::SQLite3
+  stdc++exp           # GCC/MinGW: required by std::print/std::println (C++23)
 )

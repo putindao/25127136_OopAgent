@@ -1,32 +1,41 @@
 // =============================================================================
-//  main.cpp — application entry point.
-//  P0: a toolchain check that proves libcurl + nlohmann/json + sqlite3 link and
-//  run. Later phases replace this body with the real agent CLI driver.
+//  main.cpp — temporary driver to exercise the LLM Client layer (Phase 1).
+//  Later phases turn this into the real agent CLI; for now it proves that
+//  OllamaClient can hold a real conversation and report telemetry + errors.
 // =============================================================================
-#include <cstdio>
+#include <print>   // C++23: std::println
+#include <vector>
 
-#include <curl/curl.h>
-#include <nlohmann/json.hpp>
-#include <sqlite3.h>
+#include "client/ollama_client.h"
 
 int main() {
-    std::puts("OOP AI Agent — toolchain check");
+    using namespace agent;
 
-    // libcurl: HTTP client backing OllamaClient.
-    std::printf("  libcurl       : %s\n", curl_version());
+    // C++20 designated initializers: the config reads like a spec sheet.
+    OllamaClient client(LLMConfig{
+        .model           = "gemma4",
+        .temperature     = 0.2,
+        .max_tokens      = 128,
+        .timeout_seconds = 180,
+    });
 
-    // nlohmann/json: build a tiny object to confirm the header works.
-    const nlohmann::json probe = {{"model", "gemma4"}, {"ok", true}};
-    std::printf("  nlohmann/json : %d.%d.%d (probe=%s)\n",
-                NLOHMANN_JSON_VERSION_MAJOR, NLOHMANN_JSON_VERSION_MINOR,
-                NLOHMANN_JSON_VERSION_PATCH, probe.dump().c_str());
+    const std::vector<ChatMessage> conversation = {
+        {.role = "system", .content = "You are terse. Answer in one short sentence."},
+        {.role = "user",   .content = "What is the capital of Vietnam?"},
+    };
 
-    // sqlite3: open an in-memory database and close it.
-    sqlite3* db = nullptr;
-    const int rc = sqlite3_open(":memory:", &db);
-    std::printf("  sqlite3       : %s (open rc=%d)\n", sqlite3_libversion(), rc);
-    sqlite3_close(db);
+    std::println("Calling Ollama model '{}' ...", client.config().model);
 
-    std::puts("All three libraries linked OK.");
-    return 0;
+    // The whole point of std::expected: handle both outcomes explicitly.
+    if (const LLMResult result = client.chat(conversation); result.has_value()) {
+        std::println("Reply   : {}", result->content);
+        std::println("Tokens  : prompt={} completion={}",
+                     result->prompt_tokens, result->completion_tokens);
+        std::println("Latency : {} ms", result->latency_ms);
+        return 0;
+    } else {
+        const LLMError& err = result.error();
+        std::println("ERROR [{}]: {}", to_string(err.kind), err.message);
+        return 1;
+    }
 }
