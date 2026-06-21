@@ -1,0 +1,107 @@
+{
+  "passed": 10,
+  "results": [
+    {
+      "detail": "all keywords present",
+      "passed": true,
+      "score": 1.0,
+      "steps": 2,
+      "stop_reason": "final",
+      "task_id": "task_001",
+      "total_time_ms": 14754,
+      "total_tokens": 1550
+    },
+    {
+      "detail": "exit=0 output=PASS\n",
+      "passed": true,
+      "score": 1.0,
+      "steps": 3,
+      "stop_reason": "final",
+      "task_id": "task_002",
+      "total_time_ms": 6470,
+      "total_tokens": 2471
+    },
+    {
+      "detail": "all keywords present",
+      "passed": true,
+      "score": 1.0,
+      "steps": 2,
+      "stop_reason": "final",
+      "task_id": "task_003",
+      "total_time_ms": 4000,
+      "total_tokens": 1543
+    },
+    {
+      "detail": "exit=0 output=PASS\n",
+      "passed": true,
+      "score": 1.0,
+      "steps": 3,
+      "stop_reason": "final",
+      "task_id": "task_004",
+      "total_time_ms": 5488,
+      "total_tokens": 2464
+    },
+    {
+      "detail": "all keywords present",
+      "passed": true,
+      "score": 1.0,
+      "steps": 3,
+      "stop_reason": "final",
+      "task_id": "task_005",
+      "total_time_ms": 5179,
+      "total_tokens": 2353
+    },
+    {
+      "detail": "exit=0 output=PASS\n",
+      "passed": true,
+      "score": 1.0,
+      "steps": 4,
+      "stop_reason": "final",
+      "task_id": "task_006",
+      "total_time_ms": 7810,
+      "total_tokens": 3432
+    },
+    {
+      "detail": "all keywords present",
+      "passed": true,
+      "score": 1.0,
+      "steps": 3,
+      "stop_reason": "final",
+      "task_id": "task_007",
+      "total_time_ms": 7946,
+      "total_tokens": 3294
+    },
+    {
+      "detail": "all keywords present",
+      "passed": true,
+      "score": 1.0,
+      "steps": 4,
+      "stop_reason": "final",
+      "task_id": "task_008",
+      "total_time_ms": 7078,
+      "total_tokens": 4300
+    },
+    {
+      "detail": "exit=0 output=PASS\n",
+      "passed": true,
+      "score": 1.0,
+      "steps": 5,
+      "stop_reason": "final",
+      "task_id": "task_009",
+      "total_time_ms": 10556,
+      "total_tokens": 4707
+    },
+    {
+      "detail": "all keywords present",
+      "passed": true,
+      "score": 1.0,
+      "steps": 4,
+      "stop_reason": "final",
+      "task_id": "task_010",
+      "total_time_ms": 8591,
+      "total_tokens": 4463
+    }
+  ],
+  "success_rate": 1.0,
+  "total": 10
+}

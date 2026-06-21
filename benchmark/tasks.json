@@ -19,11 +19,74 @@
   },
   {
     "id": "task_003",
+    "difficulty": "easy",
+    "description": "A calculation with parentheses.",
+    "instruction": "Use the calculator to compute (100 - 58) / 6 and give the numeric result as the final answer.",
+    "eval_type": "keyword",
+    "expected": ["7"],
+    "max_steps": 6
+  },
+  {
+    "id": "task_004",
+    "difficulty": "easy",
+    "description": "Write a file then read it back.",
+    "instruction": "Write the text 'hello world' into a file named greeting.txt using write_file, then read it back with read_file and report its contents as the final answer.",
+    "eval_type": "functional",
+    "eval_script": "test -f greeting.txt && grep -qi 'hello world' greeting.txt && echo PASS",
+    "max_steps": 8
+  },
+  {
+    "id": "task_005",
+    "difficulty": "medium",
+    "description": "Chain calculator into exec.",
+    "instruction": "Compute 7 * 8 with the calculator, then use the exec tool to echo the resulting number, then give that number as the final answer.",
+    "eval_type": "keyword",
+    "expected": ["56"],
+    "max_steps": 8
+  },
+  {
+    "id": "task_006",
+    "difficulty": "medium",
+    "description": "Calculate, write, then read back to verify.",
+    "instruction": "Compute 144 / 12 with the calculator, save ONLY the numeric result into a file named div.txt with write_file, then read div.txt back and report its contents.",
+    "eval_type": "functional",
+    "eval_script": "test -f div.txt && grep -q 12 div.txt && echo PASS",
+    "max_steps": 10
+  },
+  {
+    "id": "task_007",
     "difficulty": "medium",
     "description": "Persist a note then recall it from memory.",
     "instruction": "Save the note 'the sky is blue today' using memory_save, then search memory for 'sky' using memory_search and report the note you found as the final answer.",
     "eval_type": "keyword",
     "expected": ["sky", "blue"],
     "max_steps": 8
+  },
+  {
+    "id": "task_008",
+    "difficulty": "medium",
+    "description": "Save several notes then query one.",
+    "instruction": "Save two separate notes with memory_save: 'apple is a fruit' and 'carrot is a vegetable'. Then search memory for 'fruit' with memory_search and report what you found as the final answer.",
+    "eval_type": "keyword",
+    "expected": ["apple"],
+    "max_steps": 10
+  },
+  {
+    "id": "task_009",
+    "difficulty": "hard",
+    "description": "Multi-step arithmetic the agent must decompose, then persist.",
+    "instruction": "Compute the total cost of an order: 3 items at 17 each plus 5 items at 9 each. Use the calculator as many times as needed to get the grand total, then save ONLY the total number into a file named total.txt using write_file, and report the total as the final answer.",
+    "eval_type": "functional",
+    "eval_script": "test -f total.txt && grep -q 96 total.txt && echo PASS",
+    "max_steps": 12
+  },
+  {
+    "id": "task_010",
+    "difficulty": "hard",
+    "description": "Conditional decision driven by a computed value.",
+    "instruction": "Compute 25 * 4 with the calculator. If the result is greater than 50, save the word 'big' to memory using memory_save; otherwise save 'small'. Then search memory for 'big' with memory_search and report what you found as the final answer.",
+    "eval_type": "keyword",
+    "expected": ["big"],
+    "max_steps": 12
   }
 ]
