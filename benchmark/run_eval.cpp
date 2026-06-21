@@ -13,6 +13,7 @@
 
 #include "agent/skill_loader.h"
 #include "client/ollama_client.h"
+#include "harness/environment.h"
 #include "harness/harness_runner.h"
 #include "harness/task.h"
 #include "tools/calculator_tool.h"
@@ -27,11 +28,16 @@ namespace fs = std::filesystem;
 
 namespace {
 
-void register_all_tools(ToolRegistry& registry) {
+void register_all_tools(ToolRegistry& registry, const Environment& env) {
     registry.register_tool(std::make_unique<CalculatorTool>());
     registry.register_tool(std::make_unique<FileTool>(FileTool::Mode::Read));
     registry.register_tool(std::make_unique<FileTool>(FileTool::Mode::Write));
-    registry.register_tool(std::make_unique<ExecTool>());
+
+    // The exec tool honours the environment's command policy.
+    auto exec = std::make_unique<ExecTool>();
+    exec->set_command_policy([&env](const std::string& cmd) { return env.allows_command(cmd); });
+    registry.register_tool(std::move(exec));
+
     registry.register_tool(std::make_unique<WebSearchTool>());
     try {
         registry.register_tool(std::make_unique<MemoryTool>(MemoryTool::Mode::Save));
@@ -72,8 +78,12 @@ int main(int argc, char** argv) {
     std::println("Loaded {} tasks from {}\n", tasks.size(), tasks_path);
 
     // ---- Assemble the agent stack -------------------------------------------
+    // NativeEnvironment keeps behaviour identical to running in the current
+    // directory; swap in a SandboxEnvironment to isolate + sandbox each task.
+    NativeEnvironment env(fs::current_path());
+
     ToolRegistry registry;
-    register_all_tools(registry);
+    register_all_tools(registry, env);
 
     SkillLoader skills;
     for (const char* d : {"skills", "../skills"}) {
@@ -83,7 +93,7 @@ int main(int argc, char** argv) {
     OllamaClient client(LLMConfig{.model = "gemma4", .temperature = 0.1,
                                   .max_tokens = 512, .timeout_seconds = 180});
 
-    HarnessRunner harness(client, registry, &skills, AgentConfig{.max_steps = 8, .verbose = false});
+    HarnessRunner harness(client, registry, env, &skills, AgentConfig{.max_steps = 8, .verbose = false});
 
     // ---- Run the batch ------------------------------------------------------
     const auto report = harness.run_batch(tasks, out_dir);

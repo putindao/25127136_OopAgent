@@ -7,9 +7,10 @@
 
 namespace agent {
 
-HarnessRunner::HarnessRunner(LLMClient& client, ToolRegistry& registry,
+HarnessRunner::HarnessRunner(LLMClient& client, ToolRegistry& registry, Environment& environment,
                              SkillLoader* skills, AgentConfig base_config)
-    : client_(client), registry_(registry), skills_(skills), base_config_(base_config) {}
+    : client_(client), registry_(registry), env_(environment),
+      skills_(skills), base_config_(base_config) {}
 
 Evaluator& HarnessRunner::pick_evaluator(const std::string& eval_type) {
     if (eval_type == "functional") return functional_eval_;
@@ -17,6 +18,14 @@ Evaluator& HarnessRunner::pick_evaluator(const std::string& eval_type) {
 }
 
 HarnessRunner::RunOutcome HarnessRunner::run_task(const Task& task) {
+    // Set up an isolated workspace and run the task inside it. For a
+    // NativeEnvironment this is the current directory (a no-op); for a
+    // SandboxEnvironment it is a fresh disposable directory.
+    env_.setup();
+    std::error_code cwd_ec;
+    const std::filesystem::path prev_cwd = std::filesystem::current_path(cwd_ec);
+    std::filesystem::current_path(env_.working_dir(), cwd_ec);
+
     // Fresh agent + loop detector per task.
     AgentConfig config = base_config_;
     config.max_steps   = task.max_steps;
@@ -52,6 +61,11 @@ HarnessRunner::RunOutcome HarnessRunner::run_task(const Task& task) {
 
     // The trajectory's success reflects the evaluation verdict.
     trajectory.success = eval.passed;
+
+    // Restore the original working directory (so trajectory files land where the
+    // caller expects), then let the environment clean up.
+    std::filesystem::current_path(prev_cwd, cwd_ec);
+    env_.teardown();
     return {std::move(trajectory), eval};
 }
 

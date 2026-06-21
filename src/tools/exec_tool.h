@@ -8,7 +8,9 @@
 // =============================================================================
 #pragma once
 
+#include <functional>
 #include <string>
+#include <utility>
 
 #include "tools/tool.h"
 
@@ -18,6 +20,12 @@ namespace agent {
 // printed alongside its exit status.
 class ExecTool : public Tool {
 public:
+    // Optional gate consulted before running a command. Returning false blocks
+    // it (e.g. a SandboxEnvironment denying destructive commands). An unset
+    // policy allows everything, so default behaviour is unchanged.
+    using CommandPolicy = std::function<bool(const std::string&)>;
+    void set_command_policy(CommandPolicy policy) { policy_ = std::move(policy); }
+
     // Identifier the LLM uses to call this tool.
     std::string name() const override;
 
@@ -26,6 +34,9 @@ public:
 
     // Run `args` as a shell command line; return combined output + exit code.
     ToolResult execute(const std::string& args) override;
+
+private:
+    CommandPolicy policy_;  // empty => allow all
 };
 
 }  // namespace agent

@@ -19,6 +19,7 @@
 #include "agent/agent_loop.h"
 #include "agent/skill_loader.h"
 #include "client/llm_client.h"
+#include "harness/environment.h"
 #include "harness/evaluator.h"
 #include "harness/functional_evaluator.h"
 #include "harness/keyword_evaluator.h"
@@ -44,7 +45,7 @@ public:
         nlohmann::json to_json() const;
     };
 
-    HarnessRunner(LLMClient& client, ToolRegistry& registry,
+    HarnessRunner(LLMClient& client, ToolRegistry& registry, Environment& environment,
                   SkillLoader* skills = nullptr, AgentConfig base_config = AgentConfig{});
 
     // Run + evaluate a single task.
@@ -60,6 +61,7 @@ private:
 
     LLMClient&    client_;
     ToolRegistry& registry_;
+    Environment&  env_;
     SkillLoader*  skills_;
     AgentConfig   base_config_;
 

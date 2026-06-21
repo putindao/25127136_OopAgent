@@ -49,6 +49,11 @@ std::string ExecTool::description() const {
 }
 
 ToolResult ExecTool::execute(const std::string& args) {
+    // Enforce the environment's command policy, if one was installed.
+    if (policy_ && !policy_(args)) {
+        return std::unexpected(ToolError{"exec: command blocked by environment policy"});
+    }
+
     // Fold stderr into stdout so a single pipe carries the full output.
     const std::string command = args + " 2>&1";
 
