@@ -1,0 +1,29 @@
+[
+  {
+    "id": "task_001",
+    "difficulty": "easy",
+    "description": "Multiply two numbers with the calculator.",
+    "instruction": "Use the calculator to compute 15 * 17, then give the numeric result as the final answer.",
+    "eval_type": "keyword",
+    "expected": ["255"],
+    "max_steps": 6
+  },
+  {
+    "id": "task_002",
+    "difficulty": "easy",
+    "description": "Calculate then write the result to a file.",
+    "instruction": "Compute 12 * 12 with the calculator, then save ONLY the numeric result into a file named result.txt using write_file. Then finish.",
+    "eval_type": "functional",
+    "eval_script": "test -f result.txt && grep -q 144 result.txt && echo PASS",
+    "max_steps": 8
+  },
+  {
+    "id": "task_003",
+    "difficulty": "medium",
+    "description": "Persist a note then recall it from memory.",
+    "instruction": "Save the note 'the sky is blue today' using memory_save, then search memory for 'sky' using memory_search and report the note you found as the final answer.",
+    "eval_type": "keyword",
+    "expected": ["sky", "blue"],
+    "max_steps": 8
+  }
+]

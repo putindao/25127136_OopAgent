@@ -43,6 +43,12 @@ target_link_libraries(agent_core PUBLIC
 add_executable(agent "${CMAKE_SOURCE_DIR}/src/main.cpp")
 target_link_libraries(agent PRIVATE agent_core)
 
+# Benchmark runner (Phase 5/6): batch evaluation over tasks.json.
+if(EXISTS "${CMAKE_SOURCE_DIR}/benchmark/run_eval.cpp")
+  add_executable(run_eval "${CMAKE_SOURCE_DIR}/benchmark/run_eval.cpp")
+  target_link_libraries(run_eval PRIVATE agent_core)
+endif()
+
 # Unit tests: one executable per tests/*.cpp, registered with CTest.
 enable_testing()
 file(GLOB TEST_SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/tests/*.cpp")
