@@ -48,6 +48,11 @@ public:
     HarnessRunner(LLMClient& client, ToolRegistry& registry, Environment& environment,
                   SkillLoader* skills = nullptr, AgentConfig base_config = AgentConfig{});
 
+    // HarnessRunner aliases its client, registry and environment by reference;
+    // copying it would alias them. Forbid with a C++26 delete-with-reason.
+    HarnessRunner(const HarnessRunner&)            = delete("HarnessRunner aliases its dependencies by reference");
+    HarnessRunner& operator=(const HarnessRunner&) = delete("HarnessRunner aliases its dependencies by reference");
+
     // Run + evaluate a single task.
     RunOutcome run_task(const Task& task);
 

@@ -61,6 +61,12 @@ public:
     AgentLoop(LLMClient& client, ToolRegistry& registry, AgentConfig config = AgentConfig{});
     virtual ~AgentLoop() = default;
 
+    // AgentLoop aliases a client and registry by reference; copying it would
+    // silently share that mutable state. Forbid copies with an explanatory
+    // diagnostic (C++26 delete-with-reason, P2573).
+    AgentLoop(const AgentLoop&)            = delete("AgentLoop aliases a client/registry by reference; do not copy");
+    AgentLoop& operator=(const AgentLoop&) = delete("AgentLoop aliases a client/registry by reference; do not copy");
+
     // Persona + injected skill guidance (the protocol + tool list are appended
     // automatically by build_initial_messages).
     void set_system_prompt(std::string system_prompt) { system_prompt_ = std::move(system_prompt); }
