@@ -54,7 +54,7 @@ nlohmann::json Trajectory::to_json() const {
 bool Trajectory::save(const std::filesystem::path& path) const {
     std::ofstream out(path, std::ios::binary);
     if (!out) return false;
-    out << to_json().dump(2);
+    out << to_json().dump(2, ' ', false, nlohmann::json::error_handler_t::replace);
     return static_cast<bool>(out);
 }
 

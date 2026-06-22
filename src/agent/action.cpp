@@ -70,7 +70,9 @@ std::expected<Action, std::string> parse_action(const std::string& llm_text) {
     std::string action_input;
     if (j.contains("action_input")) {
         const auto& ai = j.at("action_input");
-        action_input = ai.is_string() ? ai.get<std::string>() : ai.dump();
+        action_input = ai.is_string()
+                           ? ai.get<std::string>()
+                           : ai.dump(-1, ' ', false, nlohmann::json::error_handler_t::replace);
     }
 
     // A small set of synonyms all mean "stop and answer".

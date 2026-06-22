@@ -90,7 +90,7 @@ HarnessRunner::run_batch(const std::vector<Task>& tasks, const std::filesystem::
 
     // Write an aggregate summary alongside the per-task trajectories.
     if (std::ofstream summary(out_dir / "summary.json", std::ios::binary); summary) {
-        summary << report.to_json().dump(2);
+        summary << report.to_json().dump(2, ' ', false, nlohmann::json::error_handler_t::replace);
     }
     return report;
 }

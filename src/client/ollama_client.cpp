@@ -109,7 +109,9 @@ LLMResult OllamaClient::chat(const std::vector<ChatMessage>& messages) {
     // ---- Send it, timing the round-trip -------------------------------------
     const std::string url = config_.base_url + "/api/chat";
     const auto start = std::chrono::steady_clock::now();
-    auto raw = http_post(url, body.dump());
+    // dump() with the replace handler so non-UTF-8 bytes (e.g. OEM-codepage
+    // output captured by the exec tool) become U+FFFD instead of throwing.
+    auto raw = http_post(url, body.dump(-1, ' ', false, nlohmann::json::error_handler_t::replace));
     const auto elapsed_ms = std::chrono::duration_cast<std::chrono::milliseconds>(
                                 std::chrono::steady_clock::now() - start)
                                 .count();
