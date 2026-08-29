@@ -47,11 +47,11 @@
   {
     "id": "task_006",
     "difficulty": "medium",
-    "description": "Calculate, write, then read back to verify.",
-    "instruction": "Compute 144 / 12 with the calculator, save ONLY the numeric result into a file named div.txt with write_file, then read div.txt back and report its contents.",
-    "eval_type": "functional",
-    "eval_script": "test -f div.txt && grep -q 12 div.txt && echo PASS",
-    "max_steps": 10
+    "description": "Research C++23 features using web_search.",
+    "instruction": "You MUST use web_search with the query 'official C++23 features'. Summarize the tool observation, and include the exact phrase C++23 in your final answer.",
+    "eval_type": "keyword",
+    "expected": ["C++23"],
+    "max_steps": 8
   },
   {
     "id": "task_007",

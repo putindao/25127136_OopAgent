@@ -1,0 +1,33 @@
+{
+  "final_answer": "7",
+  "model": "gemma4",
+  "steps": [
+    {
+      "action": {
+        "args": "(100 - 58) / 6",
+        "tool": "calculator",
+        "type": "tool_call"
+      },
+      "latency_ms": 2511,
+      "step_id": 0,
+      "thought": "The user wants me to calculate (100 - 58) / 6 using the calculator tool.",
+      "tokens_used": 752,
+      "tool_result": "7"
+    },
+    {
+      "action": {
+        "answer": "7",
+        "type": "final"
+      },
+      "latency_ms": 1898,
+      "step_id": 1,
+      "thought": "",
+      "tokens_used": 784
+    }
+  ],
+  "stop_reason": "final",
+  "success": true,
+  "task_id": "task_003",
+  "total_time_ms": 4411,
+  "total_tokens": 1536
+}
