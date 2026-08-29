@@ -1,5 +1,9 @@
 # Project Report — AI Agent Framework in C++
 
+- **Student ID:** 25127136
+- **Full name:** [YOUR FULL NAME]
+- **Model:** gemma4 via local Ollama
+
 ## 1. Overview
 
 This project implements an AI agent framework in modern C++ (C++17 → C++26) on top of a local
@@ -18,12 +22,26 @@ The system is built as strictly layered modules; dependencies only ever point do
 | Layer | Responsibility | Key types |
 |-------|----------------|-----------|
 | Client | HTTP + JSON to the model | `LLMClient` (abstract), `OllamaClient` |
-| Tools | Capabilities the agent can invoke | `Tool` (abstract) + 5 tools, `ToolRegistry` |
+| Tools | Capabilities the agent can invoke | Tools | Capabilities the agent can invoke | `Tool` (abstract) + 8 concrete classes / 10 registered names, `ToolRegistry` |
 | Skills | Reusable prompt guidance | `SkillLoader`, `Skill` |
 | Agent | The reasoning loop | `AgentLoop`, `LoopDetector`, `Action` |
 | Harness | Measure + reproduce | `Trajectory`, `Evaluator`(s), `Environment`(s), `HarnessRunner` |
 
-### 2.1 Design invariants (deliberate decoupling)
+### 2.1 Extended tools
+
+Besides the required base tools, the framework provides three additional tools
+from three different categories:
+
+| Tool | Category | Responsibility |
+|---|---|---|
+| `CurrentTimeTool` (`current_time`) | System utility | Obtains the current local date and time |
+| `TextStatsTool` (`text_stats`) | Text processing | Counts characters, words, and lines |
+| `JsonQueryTool` (`json_query`) | Structured data processing | Extracts a value from JSON using a dot-separated key path |
+
+All three tools implement the common `Tool` interface, are registered through
+`ToolRegistry`, and have deterministic unit tests.
+
+### 2.2 Design invariants (deliberate decoupling)
 
 - **`AgentLoop` does not know the harness exists.** It exposes a `StepHook`
   (`std::function<void(const Step&)>`); the harness subscribes to record a trajectory.
@@ -32,6 +50,25 @@ The system is built as strictly layered modules; dependencies only ever point do
 - **`LLMClient` is generic** — Ollama specifics live only in `OllamaClient`.
 
 These invariants are what make each layer unit-testable in isolation.
+
+### 2.3 UML diagrams
+
+#### Whole-system class diagram
+
+![Whole-system class diagram](images/class-diagram.png)
+
+#### Agent-run sequence diagram
+
+![Agent-run sequence diagram](images/agent-run-sequence.png)
+
+#### Harness batch sequence diagram
+
+![Harness batch sequence diagram](images/harness-batch-sequence.png)
+
+#### Component diagram
+
+![Component diagram](images/component-diagram.png)
+
 
 ## 3. Design patterns
 
@@ -65,14 +102,39 @@ These invariants are what make each layer unit-testable in isolation.
 command policy), construct an `AgentLoop` with a step hook recording into a `Trajectory`, run,
 then judge with the `Evaluator` named by the task's `eval_type`. Trajectories serialise to JSON
 (brief §7.1); batch runs compute a **success rate** and a `summary.json`.
+The deterministic test suite contains seven test executables. The latest verified
+result is **7/7 tests passed (100%)**, including dedicated tests for all three
+extended tools.
 
 ## 6. Benchmark results
 
-10 tasks (4 easy, 4 medium, 2 hard) exercising all five tools and both evaluators.
+The benchmark contains 10 tasks: 4 easy, 4 medium, and 2 hard. It exercises all
+five base tool classes and both evaluator strategies.
 
-**Success rate on `gemma4`: 10 / 10 = 100%.** Step counts scale with difficulty (easy ~2.5,
-medium ~3.5, hard ~4.5), confirming genuine task decomposition. Full analysis (with honesty
-caveats about sampling and the suite-specific nature of the number) is in
+**Final verified result on `gemma4`: 10/10 tasks passed (100%).**
+
+| Metric | Result |
+|---|---:|
+| Total tasks | 10 |
+| Passed | 10 |
+| Total ReAct steps | 31 |
+| Total tokens | 32,394 |
+| Total execution time | 88,299 ms |
+| Easy average | 2.5 steps |
+| Medium average | 3.0 steps |
+| Hard average | 4.5 steps |
+
+The increasing average step count indicates that harder tasks require more
+planning and tool sequencing. Task 006 explicitly exercises `web_search`, while
+the hard tasks require up to five ReAct steps.
+
+The three extended tools are verified by deterministic unit tests rather than
+benchmark tasks. Therefore, this report does not claim that the benchmark
+exercises every registered tool name.
+
+Full trajectories and the generated summary are stored in
+[`benchmark/sample_output/`](../benchmark/sample_output/). A detailed analysis,
+including limitations and reproducibility notes, is available in
 [benchmark-results.md](benchmark-results.md).
 
 ## 7. C++ techniques
