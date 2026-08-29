@@ -282,8 +282,8 @@ src/
 tests/              Seven deterministic unit tests
 skills/             Markdown skill files
 benchmark/          Benchmark tasks and batch evaluation runner
-sample_output/      Summary and 10 benchmark trajectories
-docs/               Report, UML, C++ feature map, results, and slide outline
+benchmark/sample_output/      Summary and 10 benchmark trajectories
+docs/               Report, UML, C++ feature map, results, and slide
 ```
 
 Generated directories and temporary runtime files such as `build/`, `*.db`, logs, and temporary result files are not committed.
@@ -294,7 +294,7 @@ Generated directories and temporary runtime files such as `build/`, `*.db`, logs
 - [UML diagrams](docs/uml.md)
 - [C++17–C++26 feature map](docs/cpp-features.md)
 - [Benchmark analysis](docs/benchmark-results.md)
-- [Presentation outline](docs/slides-outline.md)
+- [Presentation slides](docs/Slide.pptx)
 
 ## Demo video
 

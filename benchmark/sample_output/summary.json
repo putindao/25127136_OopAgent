@@ -8,8 +8,8 @@
       "steps": 2,
       "stop_reason": "final",
       "task_id": "task_001",
-      "total_time_ms": 4762,
-      "total_tokens": 1545
+      "total_time_ms": 16307,
+      "total_tokens": 1707
     },
     {
       "detail": "exit=0 output=PASS\n",
@@ -18,8 +18,8 @@
       "steps": 3,
       "stop_reason": "final",
       "task_id": "task_002",
-      "total_time_ms": 7109,
-      "total_tokens": 2470
+      "total_time_ms": 7221,
+      "total_tokens": 2754
     },
     {
       "detail": "all keywords present",
@@ -28,8 +28,8 @@
       "steps": 2,
       "stop_reason": "final",
       "task_id": "task_003",
-      "total_time_ms": 4411,
-      "total_tokens": 1536
+      "total_time_ms": 4458,
+      "total_tokens": 1732
     },
     {
       "detail": "exit=0 output=PASS\n",
@@ -38,8 +38,8 @@
       "steps": 3,
       "stop_reason": "final",
       "task_id": "task_004",
-      "total_time_ms": 6451,
-      "total_tokens": 2464
+      "total_time_ms": 6705,
+      "total_tokens": 2767
     },
     {
       "detail": "all keywords present",
@@ -48,8 +48,8 @@
       "steps": 3,
       "stop_reason": "final",
       "task_id": "task_005",
-      "total_time_ms": 6463,
-      "total_tokens": 2391
+      "total_time_ms": 6794,
+      "total_tokens": 2685
     },
     {
       "detail": "all keywords present",
@@ -58,8 +58,8 @@
       "steps": 2,
       "stop_reason": "final",
       "task_id": "task_006",
-      "total_time_ms": 8294,
-      "total_tokens": 2246
+      "total_time_ms": 9852,
+      "total_tokens": 2505
     },
     {
       "detail": "all keywords present",
@@ -68,8 +68,8 @@
       "steps": 3,
       "stop_reason": "final",
       "task_id": "task_007",
-      "total_time_ms": 6991,
-      "total_tokens": 3199
+      "total_time_ms": 6237,
+      "total_tokens": 3417
     },
     {
       "detail": "all keywords present",
@@ -78,8 +78,8 @@
       "steps": 4,
       "stop_reason": "final",
       "task_id": "task_008",
-      "total_time_ms": 7925,
-      "total_tokens": 4294
+      "total_time_ms": 8698,
+      "total_tokens": 4741
     },
     {
       "detail": "exit=0 output=PASS\n",
@@ -88,8 +88,8 @@
       "steps": 5,
       "stop_reason": "final",
       "task_id": "task_009",
-      "total_time_ms": 11043,
-      "total_tokens": 4656
+      "total_time_ms": 12388,
+      "total_tokens": 5251
     },
     {
       "detail": "all keywords present",
@@ -98,8 +98,8 @@
       "steps": 4,
       "stop_reason": "final",
       "task_id": "task_010",
-      "total_time_ms": 9609,
-      "total_tokens": 4446
+      "total_time_ms": 9639,
+      "total_tokens": 4835
     }
   ],
   "success_rate": 1.0,

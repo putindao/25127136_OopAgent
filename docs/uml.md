@@ -32,6 +32,9 @@ classDiagram
     Tool <|-- ExecTool
     Tool <|-- WebSearchTool
     Tool <|-- MemoryTool
+    Tool <|-- CurrentTimeTool
+    Tool <|-- TextStatsTool
+    Tool <|-- JsonQueryTool
 
     class ToolRegistry {
         <<Registry / Factory>>
@@ -200,9 +203,11 @@ flowchart TD
     subgraph client[client/]
         LLMClient -. implements .-> OllamaClient
     end
-    subgraph tools[tools/]
-        Tool
+    subgraph tools[tools/ — 8 classes / 10 registered names]
+        Tool[Tool interface]
         ToolRegistry
+        BaseTools[Base tools<br/>Calculator · File · Exec · WebSearch · Memory]
+        ExtendedTools[Extended tools<br/>CurrentTime · TextStats · JsonQuery]
     end
     subgraph harness[harness/]
         HarnessRunner

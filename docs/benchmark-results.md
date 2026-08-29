@@ -1,57 +1,95 @@
 # Benchmark Results
 
-Model: **gemma4** (Ollama, local) · temperature 0.1 · ReAct agent, JSON tool-call protocol
-Harness: `run_eval` over `benchmark/tasks.json` · evaluators: keyword + functional (bash)
+Model: **gemma4** (Ollama, local) · temperature 0.1 · ReAct agent with JSON tool-call protocol  
+Harness: `run_eval` over `benchmark/tasks.json` · evaluators: keyword and functional
 
 ## Summary
 
 | Metric | Value |
-|--------|-------|
+|---|---|
 | Tasks | 10 (4 easy · 4 medium · 2 hard) |
 | **Success rate** | **10 / 10 = 100%** |
-| Total steps | 33 |
-| Total tokens | ~30,577 |
+| Total steps | 31 |
+| Total tokens | 32,394 |
+| Total execution time | 88,299 ms (~88.3 seconds) |
 
 ## Per-task results
 
-| Task | Difficulty | Eval | Tools exercised | Steps | Tokens | Result |
-|------|-----------|------|-----------------|-------|--------|--------|
-| task_001 | easy | keyword | calculator | 2 | 1550 | PASS |
-| task_002 | easy | functional | calculator → write_file | 3 | 2471 | PASS |
-| task_003 | easy | keyword | calculator (parentheses) | 2 | 1543 | PASS |
-| task_004 | easy | functional | write_file → read_file | 3 | 2464 | PASS |
-| task_005 | medium | keyword | calculator → exec | 3 | 2353 | PASS |
-| task_006 | medium | functional | calculator → write_file → read_file | 4 | 3432 | PASS |
-| task_007 | medium | keyword | memory_save → memory_search | 3 | 3294 | PASS |
-| task_008 | medium | keyword | memory_save ×2 → memory_search | 4 | 4300 | PASS |
-| task_009 | hard | functional | calculator ×N → write_file | 5 | 4707 | PASS |
-| task_010 | hard | keyword | calculator → (conditional) memory_save → memory_search | 4 | 4463 | PASS |
+| Task | Difficulty | Evaluator | Main tools exercised | Steps | Tokens | Result |
+|---|---|---|---|---:|---:|---|
+| task_001 | Easy | Keyword | `calculator` | 2 | 1,707 | PASS |
+| task_002 | Easy | Functional | `calculator` → `write_file` | 3 | 2,754 | PASS |
+| task_003 | Easy | Keyword | `calculator` | 2 | 1,732 | PASS |
+| task_004 | Easy | Functional | `write_file` → `read_file` | 3 | 2,767 | PASS |
+| task_005 | Medium | Keyword | `calculator` → `exec` | 3 | 2,685 | PASS |
+| task_006 | Medium | Keyword | `web_search` | 2 | 2,505 | PASS |
+| task_007 | Medium | Keyword | `memory_save` → `memory_search` | 3 | 3,417 | PASS |
+| task_008 | Medium | Keyword | `memory_save` ×2 → `memory_search` | 4 | 4,741 | PASS |
+| task_009 | Hard | Functional | `calculator` ×N → `write_file` | 5 | 5,251 | PASS |
+| task_010 | Hard | Keyword | `calculator` → conditional memory operations | 4 | 4,835 | PASS |
 
-## Analysis
+## Difficulty analysis
 
-- **Step count scales with task complexity** (easy ~2.5, medium ~3.5, hard ~4.5 steps),
-  which confirms the agent is genuinely decomposing tasks rather than guessing in one shot.
-- **Hard tasks passed**: task_009 required the model to compute two sub-products and sum
-  them before writing the file; task_010 required a *conditional* decision based on a
-  computed value. Both succeeded, exercising multi-step planning and tool sequencing.
-- **All five tool classes were exercised** across the suite (calculator, file r/w, exec,
-  memory save/search), plus both evaluator strategies (keyword + functional/bash).
-- **Token cost grows with steps** (1.5k for a one-tool task up to ~4.7k for the hardest),
-  dominated by re-sending the growing conversation history each step.
+| Difficulty | Tasks | Total steps | Average steps |
+|---|---:|---:|---:|
+| Easy | 4 | 10 | 2.5 |
+| Medium | 4 | 12 | 3.0 |
+| Hard | 2 | 9 | 4.5 |
 
-## Caveats / honesty notes
+The average step count increases with task difficulty. Easy tasks generally require
+one tool call followed by a final answer, while hard tasks require multi-step planning,
+multiple tool calls, and conditional decisions.
 
-- 100% reflects this 10-task suite with a low temperature (0.1) and tasks whose tool
-  sequence is discoverable; harder open-ended tasks would lower the rate. The number is a
-  property of *this* benchmark, not a general capability claim.
-- Results are non-deterministic (LLM sampling); re-running may vary by a task or two.
+## Tool coverage
+
+The benchmark exercises all five base tool classes:
+
+- `CalculatorTool`
+- `FileTool`
+- `ExecTool`
+- `WebSearchTool`
+- `MemoryTool`
+
+It also exercises both evaluator strategies:
+
+- `KeywordEvaluator`
+- `FunctionalEvaluator`
+
+The three extended tools—`CurrentTimeTool`, `TextStatsTool`, and `JsonQueryTool`—are
+verified separately by deterministic unit tests. The benchmark does not claim to exercise
+every registered tool name.
+
+## Observations
+
+- All 10 tasks completed with `stop_reason` equal to `final`.
+- Hard tasks required up to five ReAct steps.
+- Token usage increased with the number of steps because the growing conversation and
+  tool observations are sent back to the model on each iteration.
+- `task_006` explicitly exercised `web_search`.
+- The final source version contains 8 tool classes and 10 registered tool names.
+
+## Caveats
+
+- The 100% result applies to this specific 10-task benchmark.
+- LLM output is non-deterministic, so repeated runs may produce different token counts,
+  execution times, or occasional task failures.
+- The benchmark was executed locally with temperature 0.1.
+- The extended tools are covered by deterministic unit tests rather than benchmark tasks.
 
 ## Reproduce
 
-```bash
-cmake --build build
-cd build && ./run_eval.exe          # uses ../benchmark/tasks.json
-# per-task trajectory_<id>.json + summary.json land in build/trajectories/
+From the repository root on Windows:
+
+```bat
+build\run_eval.exe benchmark\tasks.json benchmark\sample_output_final
 ```
 
-A captured example run lives in [benchmark/sample_output/](../benchmark/sample_output/).
+On Linux, macOS, Git Bash, or MSYS2:
+
+```bash
+./build/run_eval benchmark/tasks.json benchmark/sample_output_final
+```
+
+Each run exports `summary.json` and one JSON trajectory for every task.
+
+The verified run is stored in [benchmark/sample_output/](../benchmark/sample_output/).
