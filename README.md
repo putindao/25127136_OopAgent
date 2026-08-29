@@ -1,111 +1,310 @@
 # AI Agent Framework (C++ over Ollama)
 
-An object-oriented **AI agent framework** built from scratch in modern C++ (C++17→C++26),
-talking to a local **Ollama** LLM. It implements, as separable OOP layers, what frameworks
-like LangChain / OpenClaw do: an LLM client, a tool registry, a skill system, a ReAct agent
-loop with loop detection, and an evaluation harness.
+An object-oriented AI agent framework built from scratch in modern C++ (C++17–C++26) and connected to a local Ollama language model.
 
+The project implements the main layers commonly found in agent frameworks such as LangChain, OpenClaw, and Hermes:
+
+```text
+LLM client → tools (8 classes / 10 names) → skills → ReAct agent loop
+           → loop detection → harness → evaluators
 ```
-LLM client  →  tools (5)  →  skills  →  ReAct agent loop  →  harness + evaluators
-```
 
-See [docs/uml.md](docs/uml.md) for class/sequence/component diagrams and
-[docs/cpp-features.md](docs/cpp-features.md) for the C++ feature map.
+## Student information
 
-## Layers
+- Student ID: `25127136`
+- Full name: `Đào Nhật Tân`
+- Project: OOP AI Agent Framework
 
-| Layer | Key types |
-|-------|-----------|
-| Client | `LLMClient` (abstract) → `OllamaClient` (libcurl + nlohmann/json) |
-| Tools | `Tool` → `CalculatorTool`, `FileTool`, `ExecTool`, `WebSearchTool`, `MemoryTool`; `ToolRegistry` (Registry/Factory + allow/deny) |
-| Skills | `SkillLoader` — Markdown skills with keyword selection |
-| Agent | `AgentLoop` (ReAct, Template Method) + `LoopDetector` + `Action` variant |
-| Harness | `Trajectory`, `Evaluator` → `Keyword`/`Functional` (Strategy), `Environment` → `Native`/`Sandbox`, `HarnessRunner` (Observer step hook) |
+## Architecture layers
 
-**Design patterns:** Registry/Factory · Template Method · Strategy · Observer/Hook.
+| Layer | Key types and responsibilities |
+|---|---|
+| LLM client | `LLMClient` abstraction and `OllamaClient` implementation using libcurl and nlohmann/json |
+| Tools | Common `Tool` interface, 8 tool classes, 10 registered tool names, and `ToolRegistry` |
+| Skills | `SkillLoader` loads Markdown skills and selects relevant skills by keywords |
+| Agent | `AgentLoop` implements the ReAct cycle and uses `LoopDetector` |
+| Harness | `Trajectory`, `HarnessRunner`, environments, and evaluators |
+| Evaluation | `KeywordEvaluator` and `FunctionalEvaluator` evaluate agent results |
+
+Design patterns used:
+
+- Registry/Factory
+- Template Method
+- Strategy
+- Observer/Hook
+
+See [docs/uml.md](docs/uml.md) for the class, sequence, and component diagrams. See [docs/cpp-features.md](docs/cpp-features.md) for the C++ feature map.
+
+## Tools
+
+The framework registers 10 tool names from 8 concrete tool classes.
+
+### Base tools
+
+| Registered name | Class | Description |
+|---|---|---|
+| `calculator` | `CalculatorTool` | Evaluates arithmetic expressions |
+| `read_file` | `FileTool` | Reads text files |
+| `write_file` | `FileTool` | Writes text files |
+| `exec` | `ExecTool` | Executes an allowed shell command |
+| `web_search` | `WebSearchTool` | Queries the DuckDuckGo Instant Answer API |
+| `memory_save` | `MemoryTool` | Saves information to SQLite memory |
+| `memory_search` | `MemoryTool` | Searches previously stored memories |
+
+### Extended tools
+
+Besides the required base tools, the framework provides three additional tools from three different categories:
+
+| Registered name | Category | Class | Description |
+|---|---|---|---|
+| `current_time` | System utility | `CurrentTimeTool` | Returns the current local date and time |
+| `text_stats` | Text processing | `TextStatsTool` | Counts characters, words, and lines |
+| `json_query` | Structured data processing | `JsonQueryTool` | Extracts a JSON value using a dot-separated key path |
+
+All extended tools implement the common `Tool` interface, are registered through `ToolRegistry`, and have deterministic unit tests.
+
+## Skills
+
+The project includes at least three Markdown skills:
+
+| Skill | Purpose |
+|---|---|
+| `task_planner.md` | Breaks a complex request into manageable steps |
+| `error_recovery.md` | Helps the agent recover from tool or execution errors |
+| `web_research.md` | Guides tasks that require web research |
 
 ## Requirements
 
-- A C++26-capable compiler — **g++ 16+** (this project was built with MSYS2 UCRT64 g++ 16.1.0).
-- **CMake ≥ 3.25** and **Ninja**.
-- **libcurl**, **nlohmann/json**, **sqlite3** (dev headers).
-- **Ollama** with a tool-capable model (default: `gemma4`).
-- **bash** on PATH (Git Bash or MSYS2) for the functional evaluator on Windows.
+- A C++26-capable compiler, such as MSYS2 UCRT64 g++ 16+
+- CMake 3.25 or newer
+- Ninja
+- libcurl
+- nlohmann/json
+- SQLite3 development libraries
+- Ollama with a tool-capable model
+- Bash on `PATH` for functional evaluators on Windows
 
-### Installing the libraries (MSYS2 UCRT64)
+The default model is `gemma4`.
+
+### Install dependencies with MSYS2 UCRT64
 
 ```bash
-pacman -S --needed mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-ninja \
-  mingw-w64-ucrt-x86_64-curl mingw-w64-ucrt-x86_64-nlohmann-json mingw-w64-ucrt-x86_64-sqlite3
+pacman -S --needed \
+  mingw-w64-ucrt-x86_64-cmake \
+  mingw-w64-ucrt-x86_64-ninja \
+  mingw-w64-ucrt-x86_64-curl \
+  mingw-w64-ucrt-x86_64-nlohmann-json \
+  mingw-w64-ucrt-x86_64-sqlite3
 ```
 
-On Debian/Ubuntu: `sudo apt install cmake ninja-build libcurl4-openssl-dev nlohmann-json3-dev libsqlite3-dev`.
+On Debian or Ubuntu:
+
+```bash
+sudo apt install cmake ninja-build libcurl4-openssl-dev nlohmann-json3-dev libsqlite3-dev
+```
 
 ## Build
+
+From the repository root:
 
 ```bash
 cmake -S . -B build -G Ninja
 cmake --build build
 ```
 
-This produces `build/agent` (CLI), `build/run_eval` (benchmark), and the test executables.
+On Windows, if CMake from MSYS2 is blocked but the official CMake installation is available:
+
+```bat
+"C:\Program Files\CMake\bin\cmake.exe" -S . -B build -G Ninja -DCMAKE_MAKE_PROGRAM=C:/msys64/ucrt64/bin/ninja.exe -DCMAKE_CXX_COMPILER=C:/msys64/ucrt64/bin/g++.exe -DCMAKE_PREFIX_PATH=C:/msys64/ucrt64
+"C:\Program Files\CMake\bin\cmake.exe" --build build
+```
+
+The build produces:
+
+```text
+build/agent.exe
+build/run_eval.exe
+build/test_*.exe
+```
+
+Executable files do not include the `.exe` extension on Linux.
 
 ## Ollama setup
 
+Pull the model:
+
 ```bash
-ollama pull gemma4        # ~9.6 GB; any tool-capable model works
-ollama serve              # starts the API on http://localhost:11434
+ollama pull gemma4
 ```
 
-The model/host/temperature are configured via `LLMConfig` (see `src/main.cpp`).
+Start the Ollama service if it is not already running:
+
+```bash
+ollama serve
+```
+
+The default Ollama API endpoint is:
+
+```text
+http://localhost:11434
+```
+
+The model, host, temperature, token limit, and timeout are configured through `LLMConfig`.
 
 ## Run the agent
 
-```bash
-cd build
-./agent "Use the calculator to compute 23 * 19, then give the result."
-./agent "Compute 15*17, save the result to result.txt, then report it."
+### Windows CMD
+
+From the repository root:
+
+```bat
+build\agent.exe "Use the calculator to compute 23 * 19, then give the result."
 ```
 
-The agent prints each ReAct step (action + observation) and a final result block.
+Test the system utility tool:
 
-## Run the benchmark
-
-```bash
-cd build
-./run_eval                       # uses ../benchmark/tasks.json
-./run_eval ../benchmark/tasks.json my_out
+```bat
+build\agent.exe "You MUST use current_time to obtain the current local date and time, then report it."
 ```
 
-Prints a per-task PASS/FAIL table + overall success rate, and writes
-`trajectory_<id>.json` + `summary.json` under the output directory. Latest results:
-**10/10 = 100%** — see [docs/benchmark-results.md](docs/benchmark-results.md).
+Test the text processing tool:
+
+```bat
+build\agent.exe "You MUST use text_stats to analyze the exact text 'hello world from agent', then report the statistics."
+```
+
+Test the structured data tool:
+
+```bat
+build\agent.exe "You MUST use json_query with this input: {\"data\":{\"student\":{\"id\":25127136}},\"key\":\"student.id\"}. Report the extracted value."
+```
+
+### Linux, macOS, Git Bash, or MSYS2
+
+```bash
+./build/agent "Use the calculator to compute 23 * 19, then give the result."
+```
+
+For each request, the agent prints its ReAct steps, tool observations, final answer, stop reason, token usage, and execution time.
 
 ## Run the tests
 
-```bash
-cd build && ctest --output-on-failure
+### Windows
+
+```bat
+"C:\Program Files\CMake\bin\ctest.exe" --test-dir build --output-on-failure
 ```
 
-Deterministic unit tests (no Ollama needed) for the action parser, loop detector,
-evaluators + trajectory, and environments.
+### Linux, macOS, Git Bash, or MSYS2
+
+```bash
+ctest --test-dir build --output-on-failure
+```
+
+The project currently contains seven deterministic test executables:
+
+```text
+test_action_parser
+test_current_time_tool
+test_environment
+test_evaluators
+test_json_query_tool
+test_loop_detector
+test_text_stats_tool
+```
+
+Latest result:
+
+```text
+7/7 tests passed — 100%
+```
+
+The deterministic tests do not require Ollama.
+
+## Run the benchmark
+
+Make sure Ollama is running, then execute the benchmark from the repository root.
+
+### Windows
+
+```bat
+build\run_eval.exe benchmark\tasks.json trajectories
+```
+
+### Linux, macOS, Git Bash, or MSYS2
+
+```bash
+./build/run_eval benchmark/tasks.json trajectories
+```
+
+The benchmark contains 10 tasks:
+
+- 4 easy tasks
+- 4 medium tasks
+- 2 hard tasks
+
+It exports one JSON trajectory per task and a summary file.
+
+Latest verified result:
+
+```text
+10/10 tasks passed — 100%
+```
+
+The committed benchmark artifacts are stored in `sample_output/`:
+
+```text
+sample_output/
+├── summary.json
+├── trajectory_task_001.json
+├── trajectory_task_002.json
+├── trajectory_task_003.json
+├── trajectory_task_004.json
+├── trajectory_task_005.json
+├── trajectory_task_006.json
+├── trajectory_task_007.json
+├── trajectory_task_008.json
+├── trajectory_task_009.json
+└── trajectory_task_010.json
+```
+
+See [docs/benchmark-results.md](docs/benchmark-results.md) for the benchmark analysis.
 
 ## Project layout
 
+```text
+src/
+├── agent/          AgentLoop, Action, LoopDetector, and SkillLoader
+├── client/         LLMClient abstraction and OllamaClient
+├── harness/        Trajectory, evaluators, environments, and HarnessRunner
+└── tools/          Tool interface, ToolRegistry, and 8 tool classes
+
+tests/              Seven deterministic unit tests
+skills/             Markdown skill files
+benchmark/          Benchmark tasks and batch evaluation runner
+sample_output/      Summary and 10 benchmark trajectories
+docs/               Report, UML, C++ feature map, results, and slide outline
 ```
-src/client/      LLMClient + OllamaClient
-src/tools/       Tool, ToolRegistry, the 5 tools
-src/agent/       AgentLoop, LoopDetector, SkillLoader, Action
-src/harness/     Trajectory, Evaluator(s), Environment(s), HarnessRunner
-skills/          Markdown skill files
-benchmark/       tasks.json + run_eval + sample_output
-tests/           unit tests (CTest)
-docs/            uml.md, cpp-features.md, benchmark-results.md, report.md, plans/
-```
+
+Generated directories and temporary runtime files such as `build/`, `*.db`, logs, and temporary result files are not committed.
 
 ## Documentation
 
-- [docs/report.md](docs/report.md) — design, difficulties, results.
-- [docs/uml.md](docs/uml.md) — UML diagrams (mermaid).
-- [docs/cpp-features.md](docs/cpp-features.md) — C++17/20/23/26 feature map.
-- [docs/benchmark-results.md](docs/benchmark-results.md) — benchmark analysis.
+- [Project report](docs/report.md)
+- [UML diagrams](docs/uml.md)
+- [C++17–C++26 feature map](docs/cpp-features.md)
+- [Benchmark analysis](docs/benchmark-results.md)
+- [Presentation outline](docs/slides-outline.md)
+
+## Demo video
+
+YouTube Unlisted: `<PASTE_UNLISTED_YOUTUBE_LINK_HERE>`
+
+The demonstration includes:
+
+1. Building the project and running all tests.
+2. Running an agent task with tool calling.
+3. Demonstrating an extended tool.
+4. Running the 10-task benchmark.
+5. Inspecting `summary.json` and a trajectory file.
+6. Explaining one design pattern and the loop detector.

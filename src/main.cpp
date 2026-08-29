@@ -21,6 +21,9 @@
 #include "tools/exec_tool.h"
 #include "tools/web_search_tool.h"
 #include "tools/memory_tool.h"
+#include "tools/current_time_tool.h"
+#include "tools/text_stats_tool.h"
+#include "tools/json_query_tool.h"
 
 using namespace agent;
 namespace fs = std::filesystem;
@@ -34,6 +37,9 @@ void register_all_tools(ToolRegistry& registry) {
     registry.register_tool(std::make_unique<FileTool>(FileTool::Mode::Write));
     registry.register_tool(std::make_unique<ExecTool>());
     registry.register_tool(std::make_unique<WebSearchTool>());
+    registry.register_tool(std::make_unique<CurrentTimeTool>());
+    registry.register_tool(std::make_unique<TextStatsTool>());
+    registry.register_tool(std::make_unique<JsonQueryTool>());
     try {  // MemoryTool opens SQLite in its ctor and may throw.
         registry.register_tool(std::make_unique<MemoryTool>(MemoryTool::Mode::Save));
         registry.register_tool(std::make_unique<MemoryTool>(MemoryTool::Mode::Search));

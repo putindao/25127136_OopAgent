@@ -22,6 +22,9 @@
 #include "tools/memory_tool.h"
 #include "tools/tool_registry.h"
 #include "tools/web_search_tool.h"
+#include "tools/current_time_tool.h"
+#include "tools/text_stats_tool.h"
+#include "tools/json_query_tool.h"
 
 using namespace agent;
 namespace fs = std::filesystem;
@@ -32,6 +35,9 @@ void register_all_tools(ToolRegistry& registry, const Environment& env) {
     registry.register_tool(std::make_unique<CalculatorTool>());
     registry.register_tool(std::make_unique<FileTool>(FileTool::Mode::Read));
     registry.register_tool(std::make_unique<FileTool>(FileTool::Mode::Write));
+    registry.register_tool(std::make_unique<CurrentTimeTool>());
+    registry.register_tool(std::make_unique<TextStatsTool>());
+    registry.register_tool(std::make_unique<JsonQueryTool>());
 
     // The exec tool honours the environment's command policy.
     auto exec = std::make_unique<ExecTool>();
