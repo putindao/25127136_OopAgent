@@ -97,12 +97,6 @@ pacman -S --needed \
   mingw-w64-ucrt-x86_64-sqlite3
 ```
 
-On Debian or Ubuntu:
-
-```bash
-sudo apt install cmake ninja-build libcurl4-openssl-dev nlohmann-json3-dev libsqlite3-dev
-```
-
 ## Build
 
 From the repository root:
@@ -110,13 +104,6 @@ From the repository root:
 ```bash
 cmake -S . -B build -G Ninja
 cmake --build build
-```
-
-On Windows, if CMake from MSYS2 is blocked but the official CMake installation is available:
-
-```bat
-"C:\Program Files\CMake\bin\cmake.exe" -S . -B build -G Ninja -DCMAKE_MAKE_PROGRAM=C:/msys64/ucrt64/bin/ninja.exe -DCMAKE_CXX_COMPILER=C:/msys64/ucrt64/bin/g++.exe -DCMAKE_PREFIX_PATH=C:/msys64/ucrt64
-"C:\Program Files\CMake\bin\cmake.exe" --build build
 ```
 
 The build produces:
@@ -191,8 +178,8 @@ For each request, the agent prints its ReAct steps, tool observations, final ans
 
 ### Windows
 
-```bat
-"C:\Program Files\CMake\bin\ctest.exe" --test-dir build --output-on-failure
+```bash
+ctest --test-dir build --output-on-failure
 ```
 
 ### Linux, macOS, Git Bash, or MSYS2
@@ -200,6 +187,8 @@ For each request, the agent prints its ReAct steps, tool observations, final ans
 ```bash
 ctest --test-dir build --output-on-failure
 ```
+
+If CMake is not available on PATH, invoke it using the installation path configured on the current machine.
 
 The project currently contains seven deterministic test executables:
 
@@ -251,10 +240,10 @@ Latest verified result:
 10/10 tasks passed — 100%
 ```
 
-The committed benchmark artifacts are stored in `sample_output/`:
+The committed benchmark artifacts are stored in `benchmark/sample_output/`:
 
 ```text
-sample_output/
+benchmark/sample_output/
 ├── summary.json
 ├── trajectory_task_001.json
 ├── trajectory_task_002.json
@@ -296,19 +285,16 @@ Generated directories and temporary runtime files such as `build/`, `*.db`, logs
 - [Benchmark analysis](docs/benchmark-results.md)
 - [Presentation slides](docs/Slide.pptx)
 
-## Demo video
+## Submission links
 
-YouTube Unlisted: `https://youtu.be/1Xn5-6cR6_8`
+- [GitHub repository](https://github.com/putindao/25127136_OopAgent)
+- [Demo video — YouTube Unlisted](https://youtu.be/1Xn5-6cR6_8)
 
 The demonstration includes:
 
-1. Building the project and running all tests.
-2. Running an agent task with tool calling.
+1. Running all seven tests.
+2. Running an agent task with multiple tool calls.
 3. Demonstrating an extended tool.
 4. Running the 10-task benchmark.
 5. Inspecting `summary.json` and a trajectory file.
-6. Explaining one design pattern and the loop detector.
-
-## Submission link
-
-Github link: `https://github.com/putindao/25127136_OopAgent`
+6. Explaining the Registry/Factory design pattern.
