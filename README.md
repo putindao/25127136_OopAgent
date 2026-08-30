@@ -298,7 +298,7 @@ Generated directories and temporary runtime files such as `build/`, `*.db`, logs
 
 ## Demo video
 
-YouTube Unlisted: `<PASTE_UNLISTED_YOUTUBE_LINK_HERE>`
+YouTube Unlisted: `https://youtu.be/1Xn5-6cR6_8`
 
 The demonstration includes:
 

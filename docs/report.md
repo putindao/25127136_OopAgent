@@ -168,7 +168,20 @@ ranges (C++20); `std::expected`, `std::println` (C++23); `= delete("reason")` (C
 - Bonus directions (not implemented): VLM/GUI agent, embedding-based vector memory, multi-agent
   coordination.
 
-## 10. Conclusion
+## 10. Demo video
+
+YouTube Unlisted: `https://youtu.be/1Xn5-6cR6_8`
+
+The video demonstrates:
+
+1. Building the project and running all seven tests.
+2. Running an agent task with tool calling.
+3. Demonstrating an extended tool.
+4. Running the 10-task benchmark.
+5. Inspecting `summary.json` and a trajectory file.
+6. Explaining a design pattern and loop detection.
+
+## 11. Conclusion
 
 The project demonstrates that a non-trivial agent system can be expressed cleanly with classic
 OOP: four design patterns, strict layering, and modern C++ idioms, verified end-to-end against a
